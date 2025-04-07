@@ -1,0 +1,31 @@
+from configs.base_config import BaseConfig
+from src.data_loader import DataProcessor
+from src.models import TransE
+from src.trainer import KGTrainer
+
+def main():
+    # 初始化配置
+    config = BaseConfig()
+    
+    # 预处理
+    processor = DataProcessor(config.data_dir)
+    datasets = processor.get_datasets()
+    
+    # 初始化模型
+    model = TransE(
+        num_entities=len(processor.entity2id),
+        num_relations=len(processor.relation2id),
+        embed_dim=config.embedding_dim
+    ).to(config.device)
+    
+    # 启动训练
+    trainer = KGTrainer(
+        model=model,
+        train_data=datasets['train'],
+        valid_data=datasets['valid'],
+        config=config
+    )
+    trainer.train()
+
+if __name__ == "__main__":
+    main()
